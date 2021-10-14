@@ -2,7 +2,7 @@
  * Created by viktor on 17.02.21.
  */
 
-import axios from 'axios'
+import {HTTP} from '@/js/http-base'
 
 const mutations = {
   setItems (state, items) {
@@ -20,11 +20,11 @@ const getters = {
   }
 }
 const actions = {
-  getItems ({ commit, dispatch }, form) {
+  getProducts ({ commit, dispatch }, form) {
     // enable preloader
     dispatch('setLoading', null, { root: true })
 
-    axios.get('http://laravelapp.loc/api/product', {
+    HTTP.get('/api/product', {
       params: form
     }).then((response) => {
       if (response.data.data.items) {

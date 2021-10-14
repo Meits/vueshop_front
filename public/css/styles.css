@@ -11273,3 +11273,10 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+
+.width_30 {
+  width: 30%;
+}
+.login__navigation_links {
+  font-size: 12px;
+}
