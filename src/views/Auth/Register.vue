@@ -7,23 +7,35 @@
 
       <div class="mb-3">
         <label for="exampleInputEmail1" class="form-label">Name</label>
-        <input type="text" :class="{'form-control' : true, 'is-invalid' : errors && errors.name}" v-model="user.name"  aria-describedby="emailHelp">
-        <span class="invalid-feedback" v-if="errors && errors.name" ><strong>{{ errors.name[0]}}</strong></span>
+        <input type="text" :class="{'form-control' : true, 'is-invalid' : status(v$.user.name, 'name')}" v-model="v$.user.name.$model"  aria-describedby="emailHelp">
+        <span class="invalid-feedback" v-if="errors && errors.name" ><strong>{{ getErrorText('name')}}</strong></span>
+        <span class="invalid-feedback" v-for="(error, index) of v$.user.name.$errors" :key="index">
+          <strong>{{ error.$message }}</strong>
+        </span>
       </div>
 
       <div class="mb-3">
         <label for="exampleInputEmail1" class="form-label">Email address</label>
-        <input type="email" :class="{'form-control' : true, 'is-invalid' : errors && errors.email}" v-model="user.email" id="exampleInputEmail1" aria-describedby="emailHelp">
-        <span class="invalid-feedback" v-if="errors && errors.email" ><strong>{{ errors.email[0]}}</strong></span>
+        <input type="email" :class="{'form-control' : true, 'is-invalid' : status(v$.user.email, 'email')}" v-model="v$.user.email.$model" id="exampleInputEmail1" aria-describedby="emailHelp">
+        <span class="invalid-feedback" v-if="errors && errors.email" ><strong>{{ getErrorText('email')}}</strong></span>
+        <span class="invalid-feedback" v-for="(error, index) of v$.user.email.$errors" :key="index">
+          <strong>{{ error.$message }}</strong>
+        </span>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" :class="{'form-control' : true, 'is-invalid' : errors && errors.password}" v-model="user.password" class="form-control">
+        <input type="password" :class="{'form-control' : true, 'is-invalid' : status(v$.user.password, 'password')}" v-model="v$.user.password.$model" class="form-control">
         <span class="invalid-feedback" v-if="errors && errors.password" ><strong>{{ getErrorText('password')}}</strong></span>
+        <span class="invalid-feedback" v-for="(error, index) of v$.user.password.$errors" :key="index">
+          <strong>{{ error.$message }}</strong>
+        </span>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
-        <input type="password" v-model="user.password_confirmation" class="form-control" >
+        <input type="password" v-model="v$.user.password_confirmation.$model" :class="{'form-control' : true, 'is-invalid' : status(v$.user.password_confirmation, 'password_confirmation')}" >
+        <span class="invalid-feedback" v-for="(error, index) of v$.user.password_confirmation.$errors" :key="index">
+          <strong>{{ error.$message }}</strong>
+        </span>
       </div>
       <div class="text-center">
       <button type="button" @click="hendleRegister()" class="btn btn-primary">Submit</button>
@@ -50,9 +62,13 @@
 </template>
 
 <script>
-import HTTP from '@/js/http-base.js'
+import useVuelidate from '@vuelidate/core'
+import { required, email, sameAs } from '@vuelidate/validators'
 
   export default {
+    setup () {
+      return { v$: useVuelidate() }
+    },
     data(){
       return {
         errors: null,
@@ -65,7 +81,20 @@ import HTTP from '@/js/http-base.js'
         
       }
     },
+    validations () {
+      return {
+        user: {
+          email: { required, email },
+          name: { required },
+          password: {required},
+          password_confirmation: { required, sameAsPassword: sameAs(this.user.password) }
+        }
+      }
+    },
     methods : {
+      status (validation, field) {
+        return ((this.errors && this.errors[field]) || (validation.$error))
+      },
       getErrorText (error) {
           let str = '';
           if(this.errors[error]) {
@@ -76,20 +105,33 @@ import HTTP from '@/js/http-base.js'
           }
           return str;
       },
-      hendleRegister () {
-          this.$store.dispatch('register', this.user)
-          .then(
-            //() => this.$router.push('/')
-            (response) => {
-              console.log('register request ok',response)
-            }
-          )
-          .catch((e) => {
-            if(e.response.data.errors) {
-                this.errors = e.response.data.errors
-                //console.log('errors ->',this.errors.name);
-            }
-          })
+      validate () {
+        this.user.$touch();
+      },
+       hendleRegister () {
+
+        if(!this.validate) {
+          return false
+        }
+
+        const isFormCorrect =  this.v$.$validate()
+        // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
+        if (!isFormCorrect) return
+        // actually submit form
+
+        this.$store.dispatch('register', this.user)
+        .then(
+          //() => this.$router.push('/')
+          (response) => {
+            console.log('register request ok',response)
+            this.$router.push('login')
+          }
+        )
+        .catch((e) => {
+          if(e.response && e.response.data.errors) {
+              this.errors = e.response.data.errors
+          }
+        })
         
         
       }

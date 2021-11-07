@@ -26,7 +26,7 @@
       ).then((response) => {
 
       console.log('Store request ok',response)
-      resolve(resp)
+      resolve(response)
         
       })
       .catch(err => {

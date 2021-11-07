@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div v-if="loading">
-      preloader show
+    <div  v-if="loading" class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
     </div>
   </div>
 </template>

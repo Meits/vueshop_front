@@ -8,6 +8,8 @@
     "watch": "vue-cli-service build --watch --mode development"
   },
   "dependencies": {
+    "@vuelidate/core": "^2.0.0-alpha.32",
+    "@vuelidate/validators": "^2.0.0-alpha.25",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
