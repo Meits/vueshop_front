@@ -6,9 +6,15 @@
     <form>
 
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Name</label>
-        <input type="text" :class="{'form-control' : true, 'is-invalid' : status(v$.user.name, 'name')}" v-model="v$.user.name.$model"  aria-describedby="emailHelp">
-        <ErrorMessage v-bind:errors="v$.user.name.$errors" v-bind:serverError="errors?errors.name:false"></ErrorMessage>
+        <label for="exampleInputEmail1" class="form-label">First name</label>
+        <input type="text" :class="{'form-control' : true, 'is-invalid' : status(v$.user.firstname, 'firstname')}" v-model="v$.user.firstname.$model"  aria-describedby="emailHelp">
+        <ErrorMessage v-bind:errors="v$.user.firstname.$errors" v-bind:serverError="errors?errors.firstname:false"></ErrorMessage>
+      </div>
+      
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Last name</label>
+        <input type="text" :class="{'form-control' : true, 'is-invalid' : status(v$.user.lastname, 'lastname')}" v-model="v$.user.lastname.$model"  aria-describedby="emailHelp">
+        <ErrorMessage v-bind:errors="v$.user.lastname.$errors" v-bind:serverError="errors?errors.lastname:false"></ErrorMessage>
       </div>
 
       <div class="mb-3">
@@ -16,6 +22,14 @@
         <input type="email" :class="{'form-control' : true, 'is-invalid' : status(v$.user.email, 'email')}" v-model="v$.user.email.$model" id="exampleInputEmail1" aria-describedby="emailHelp">
         
         <ErrorMessage v-bind:errors="v$.user.email.$errors" v-bind:serverError="errors?errors.email:false"></ErrorMessage>
+
+      </div>
+      
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Phone</label>
+        <input type="email" :class="{'form-control' : true, 'is-invalid' : status(v$.user.phone, 'email')}" v-model="v$.user.phone.$model" id="exampleInputEmail1" aria-describedby="emailHelp">
+        
+        <ErrorMessage v-bind:errors="v$.user.phone.$errors" v-bind:serverError="errors?errors.phone:false"></ErrorMessage>
 
       </div>
       <div class="mb-3">
@@ -81,7 +95,9 @@ import ErrorMessage from "@/components/validation/ErrorMessage.vue"
         user : {
           email : "",
           password : "",
-          name : "",
+          firstname : "",
+          lastname : "",
+          phone : "",
           password_confirmation : ""
         }
         
@@ -91,7 +107,9 @@ import ErrorMessage from "@/components/validation/ErrorMessage.vue"
       return {
         user: {
           email: { required, email },
-          name: { required },
+          firstname: { required },
+          lastname: { required },
+          phone: { required },
           password: {
             required,
             serverFailed : helpers.withMessage(this.getServerErrorMessage('password'), function(){
@@ -121,16 +139,13 @@ import ErrorMessage from "@/components/validation/ErrorMessage.vue"
       },
        async hendleRegister () {
 
-         console.log('submit');
+         this.errors = [];
 
         const isFormCorrect = await this.v$.$validate()
-        // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
         if (!isFormCorrect) return
-        // actually submit form
 
         this.$store.dispatch('register', this.user)
         .then(
-          //() => this.$router.push('/')
           (response) => {
             console.log('register request ok',response)
             this.$router.push('login')
